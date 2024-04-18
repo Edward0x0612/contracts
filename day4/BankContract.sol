@@ -62,31 +62,38 @@ contract BankContract {
      */
     function deposit() public payable {
         require(msg.value > 0, "deposit amount must be greater than 0!");
+        // keep trace EOA transfer
         deposits[msg.sender] += msg.value;
+        // transfer amount to contract address
+        payable(address(this)).transfer(msg.value);
         // sort after deposit
         deposit_sort(msg.sender);
     }
 
     /**
-     * Query the address balances
+     * Query the each address balances
      */
-    function balances() public view returns (uint256) {
+    function getAddressDepositBalance() public view returns (uint256) {
         return deposits[msg.sender];
+    }
+
+    /**
+     * Query the contract deposit balances
+     */
+    function getContractDepositBalance() public view returns (uint256) {
+        return address(this).balance;
     }
 
     /**
      * Withdraw the deposit, and only admin have the privileges
      * @param amount
      */
-    function withdrwal(
-        address target,
-        uint256 amount
-    ) public isAdmin returns (bool) {
+    function withdrwal(address target, uint256 amount) public isAdmin returns (bool) {
         // check the withdraw amount
         require(amount > 0, "withdraw amount must greater than 0");
 
-        // check the deposit amount
-        require(amount <= deposits[target], "this address have no enough balance");
+        // check the contract deposit amount
+        require(address(this).balance >= amount, "Insufficient funds");
 
         // transfer to the EOA address
         payable(target).transfer(amount);
