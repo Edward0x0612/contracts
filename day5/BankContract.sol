@@ -34,6 +34,17 @@ contract BankContract {
     }
 
     /*
+     * EOA address deposit
+     */
+    // function deposit() public payable {
+    //     require(msg.value > 0, "deposit amount must be greater than 0!");
+    //     // keep trace EOA transfer
+    //     deposits[msg.sender] += msg.value;
+    //     // sort after deposit
+    //     sort(msg.sender);
+    // }
+
+    /*
      * Query the each address balances
      */
     function getAddressDepositBalance() public view returns (uint256) {
@@ -62,7 +73,7 @@ contract BankContract {
         payable(msg.sender).transfer(amount);
 
         // deduct the deposit amount
-        deposits[msg.sender] += amount;
+        deposits[msg.sender] -= amount;
         return true;
     }
 
@@ -93,7 +104,7 @@ contract BankContract {
     }
 
     receive() external payable {
-         require(msg.value > 0, "deposit amount must be greater than 0!");
+        require(msg.value > 0, "deposit amount must be greater than 0!");
         // keep trace EOA transfer
         deposits[msg.sender] += msg.value;
         // sort after deposit
