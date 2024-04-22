@@ -34,9 +34,8 @@ contract BaseERC20 {
     }
 
     // 获取指定owner地址对应的代币余额
-    function balanceOf(address _owner) public returns (uint256){
-        
-        return balances[_owner];
+function balanceOf(address account) public view virtual returns (uint256) {
+        return balances[account];
     }
 
     // 查询某个owner授权委托人允许的转账数量
@@ -50,7 +49,7 @@ contract BaseERC20 {
         require(_to != address(0), "BaseERC20: invalid sender");
         
         // 检验发送者账户token数量是否足够
-        require(balances[msg.sender] >= _value, "BaseERC20: transfer amount exceeds balance");
+        require(balances[msg.sender] > _value, "ERC20: transfer amount exceeds balance");
         
         // 扣除发送者账户token余额
         balances[msg.sender] -= _value;
@@ -69,13 +68,11 @@ contract BaseERC20 {
         require((_from != address(0) && _to != address(0)), "BaseERC20: invalid sender or recepient address");
         
         // 检验发送者账户token数量是否足够
-        require(balances[_from] >= _value, "BaseERC20: transfer amount exceeds balance");
+        require(balances[_from] >= _value, "ERC20: transfer amount exceeds balance");
 
         // 校验token委托方针对from用户剩余被批准的token数量
         uint256 allowance = allowance(_from, msg.sender);
-        if (allowance < _value) {
-            revert BaseERC20NotEnoughAllowance();
-        }
+        require(allowance >= _value, "ERC20: transfer amount exceeds allowance");
         // 转移之后from的token数量扣减
         balances[_from] -= _value;
         // 扣减spender剩余的可转账token数量
