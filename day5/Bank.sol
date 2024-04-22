@@ -9,6 +9,8 @@ contract Bank is Ownable {
 
     address[] arr = new address[](3);
 
+    error TRANSFER_FAILED();
+
     // 取钱，需要校所有者权限
     function withdraw(uint256 amount) public admin returns (bool) {
         // 校验取出金额
@@ -18,10 +20,14 @@ contract Bank is Ownable {
         require(address(this).balance >= amount, "No enough amount");
 
         // 转账
-        payable(msg.sender).transfer(amount);
+        (bool success, ) = payable(msg.sender).call{value: amount}(new bytes(0));
+        if (!success) revert TRANSFER_FAILED();
 
         // 扣减该用户记录的金额
-        deposits[msg.sender] -= amount;
+        if (deposits[msg.sender] > 0) {
+            deposits[msg.sender] -= amount;
+        }
+
         return true;
     }
 

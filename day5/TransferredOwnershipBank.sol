@@ -16,19 +16,14 @@ contract TransferredOwnershipBank is Ownable {
 
     // 从其他合约取钱(组合方式实现)
     function withdraw(uint256 amount) public admin returns (bool) {
-        // 校验取钱金额
-        if (amount < 0) revert AMOUNT_LESS_THAN_ZERO();
         // 调用BigBank合约进行取钱
-        return caller.withdrwal(amount);
+        return caller.withdraw(amount);
     }
 
     // 从其他合约取钱(接口实现)
-    function withdraw(uint256 amount, address payable _addr) public admin returns (bool) {
-        // 校验取钱金额
-        if (amount < 0) revert AMOUNT_LESS_THAN_ZERO();
-
+    function withdraw(uint256 amount, address payable _bigbank) public admin returns (bool) {
         // 通过interface调用BigBank合约进行取钱
-        return IBank(_addr).withdraw(amount);
+        return IBank(_bigbank).withdraw(amount);
     }
 
     receive() external payable {
